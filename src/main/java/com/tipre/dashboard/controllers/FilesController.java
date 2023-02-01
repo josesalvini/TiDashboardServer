@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,30 +13,28 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-
+import com.tipre.dashboard.dto.ResponseFile;
 import com.tipre.dashboard.dto.ResponseMessage;
-import com.tipre.dashboard.model.fileinfo.FileInfo;
+import com.tipre.dashboard.model.fileinfo.FileDB;
 import com.tipre.dashboard.service.FilesStorageService;
 
 
 @RestController
-@RequestMapping("/api/v1/uploads")
+@RequestMapping("/api/v1/files")
 @CrossOrigin(origins = "*", maxAge = 3600)
 public class FilesController {
 	  @Autowired
 	  FilesStorageService storageService;
 
-	  //@PostMapping(path = "{id}")
-	  @PostMapping
-	  public ResponseEntity<ResponseMessage> uploadFile(@RequestParam("file") MultipartFile file) {
+	  @PostMapping("/{id}")
+	  public ResponseEntity<ResponseMessage> uploadFile(@RequestParam("file") MultipartFile file, @PathVariable Long id) {
 	    String message = "";
 	    try {
-	      storageService.save(file);
+	      storageService.store(file, id);
 	      
 	      message = "Uploaded: Archivos subidos correctamente " + file.getOriginalFilename();
 	      return ResponseEntity
@@ -58,8 +55,36 @@ public class FilesController {
 						  .build());
 	    }
 	  }
+	  
+	  @GetMapping
+	  public ResponseEntity<List<ResponseFile>> getListFiles() {
+	    List<ResponseFile> files = storageService.getAllFiles().map(dbFile -> {
+	      String fileDownloadUri = ServletUriComponentsBuilder
+	          .fromCurrentContextPath()
+	          .path("/api/v1/files/")
+	          .path(dbFile.getId().toString())
+	          .toUriString();
 
-	  @GetMapping("/files")
+	      return new ResponseFile(
+	          dbFile.getName(),
+	          fileDownloadUri,
+	          dbFile.getType(),
+	          dbFile.getData().length);
+	    }).collect(Collectors.toList());
+
+	    return ResponseEntity.status(HttpStatus.OK).body(files);
+	  }
+	  
+	  @GetMapping("/{id}")
+	  public ResponseEntity<byte[]> getFile(@PathVariable Long id) {
+	    FileDB fileDB = storageService.getFile(id);
+
+	    return ResponseEntity.ok()
+	        .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + fileDB.getName() + "\"")
+	        .body(fileDB.getData());
+	  }
+	  
+	  /*@GetMapping
 	  public ResponseEntity<List<FileInfo>> getListFiles() {
 	    List<FileInfo> fileInfos = storageService.loadAll().map(path -> {
 	      String filename = path.getFileName().toString();
@@ -80,5 +105,5 @@ public class FilesController {
 	    Resource file = storageService.load(filename);
 	    return ResponseEntity.ok()
 	        .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + file.getFilename() + "\"").body(file);
-	  }
+	  }*/
 }

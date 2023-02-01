@@ -8,17 +8,43 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.stream.Stream;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Service;
 import org.springframework.util.FileSystemUtils;
+import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
+
+import com.tipre.dashboard.model.fileinfo.FileDB;
+import com.tipre.dashboard.repository.FileRepository;
 
 @Service
 public class FilesStorageServiceImpl implements FilesStorageService {
 
   private final Path root = Paths.get("uploads");
 
+  @Autowired
+  private FileRepository fileRepository;
+
+  @Override
+  public FileDB store(MultipartFile file, Long id) throws IOException {
+    String fileName = StringUtils.cleanPath(file.getOriginalFilename());
+    FileDB FileDB = new FileDB(fileName, file.getContentType(), file.getBytes(), id);
+
+    return fileRepository.save(FileDB);
+  }
+
+  @Override
+  public FileDB getFile(Long id) {
+    return fileRepository.findById(id).get();
+  }
+  
+  @Override
+  public Stream<FileDB> getAllFiles() {
+    return fileRepository.findAll().stream();
+  }
+  
   @Override
   public void init() {
     try {
@@ -34,7 +60,7 @@ public class FilesStorageServiceImpl implements FilesStorageService {
       Files.copy(file.getInputStream(), this.root.resolve(file.getOriginalFilename()));
     } catch (Exception e) {
       if (e instanceof FileAlreadyExistsException) {
-        throw new RuntimeException("A file of that name already exists.");
+        throw new RuntimeException("Existe un archivo con el mismo nombre.");
       }
 
       throw new RuntimeException(e.getMessage());

@@ -1,10 +1,13 @@
 package com.tipre.dashboard.service;
 
+import java.io.IOException;
 import java.nio.file.Path;
 import java.util.stream.Stream;
 
 import org.springframework.core.io.Resource;
 import org.springframework.web.multipart.MultipartFile;
+
+import com.tipre.dashboard.model.fileinfo.FileDB;
 
 public interface FilesStorageService {
   public void init();
@@ -16,4 +19,8 @@ public interface FilesStorageService {
   public void deleteAll();
 
   public Stream<Path> loadAll();
+  
+  public FileDB store(MultipartFile file, Long id) throws IOException;
+  public FileDB getFile(Long id);
+  public Stream<FileDB> getAllFiles();
 }
