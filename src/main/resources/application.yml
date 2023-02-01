@@ -1,0 +1,41 @@
+spring:
+  application:
+    name: API SERVER DASHBOARD
+  active:
+    profile: dev
+  main:
+    banner-mode: "off"
+  #datasource:
+    #driver-class-name: com.microsoft.sqlserver.jdbc.SQLServerDriver
+    #url: jdbc:sqlserver://localhost:1433;instance=SQLHOME;databaseName=TipreRetail;trustServerCertificate=true
+    #username: sa
+    #password: 123456
+  datasource:
+    #postgres://db_tipreretail_user:AULwClCR4jwWag2u9RDaOrsC6eQpXvtN@dpg-cfd67m1gp3jl4de2rev0-a.oregon-postgres.render.com/db_tipreretail
+    url: jdbc:postgresql://dpg-cfd67m1gp3jl4de2rev0-a.oregon-postgres.render.com:5432/db_tipreretail
+    username: db_tipreretail_user
+    password: AULwClCR4jwWag2u9RDaOrsC6eQpXvtN
+  jpa:
+    generate-ddl: true
+    open-in-view: false
+    show-sql: true
+    # Hibernate ddl auto (create, create-drop, validate, update)
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        forma_sql: true
+        globally_quoted_identifiers: true
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+    #database-platform: org.hibernate.dialect.SQLServerDialect
+    database-platform: org.hibernate.dialect.PostgreSQLDialect        
+  servlet:
+    multipart:
+      max-file-size: 500KB
+      max-request-size: 500KB
+logging:
+  level:
+    org.springframework.security: TRACE 
+management:
+  security:
+    enabled: false
