@@ -44,7 +44,7 @@ public class Customer implements Serializable {
 	private String documento;
 	
 	@Enumerated(EnumType.STRING)
-	@Column(length = 20)
+	@Column(length = 30)
 	private Type type;
 
 	public Customer(String firstname, String lastname, String documento,Type type ){

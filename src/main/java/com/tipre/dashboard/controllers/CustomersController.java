@@ -3,6 +3,8 @@ package com.tipre.dashboard.controllers;
 import java.util.List;
 import java.util.Optional;
 
+import javax.validation.Valid;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,10 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.tipre.dashboard.dto.CustomersResponse;
 import com.tipre.dashboard.model.customer.Customer;
-import com.tipre.dashboard.model.customer.Type;
 import com.tipre.dashboard.repository.CustomerRepository;
-
-import javax.validation.Valid;
 
 @RestController
 @RequestMapping("/api/v1/customers")
@@ -66,7 +65,7 @@ public class CustomersController {
 	public ResponseEntity<Customer> createCustomer(@Valid @RequestBody Customer customer) {
 		try {
 			Customer _customer = new Customer(customer.getFirstname(), customer.getLastname(), customer.getDocumento(),
-					Type.CONSUMIDOR_FINAL);
+					customer.getType());
 
 			customerRepository.save(_customer);
 
