@@ -39,8 +39,12 @@ import com.tipre.dashboard.service.UsersService;
 @RestController
 @RequestMapping("/api/v1/auth")
 //@CrossOrigin(origins = "http://localhost:59968, http://localhost:8080")
-@CrossOrigin(origins = "*",
-exposedHeaders = {"Access-Control-Allow-Origin","Access-Control-Allow-Credentials"},
+@CrossOrigin(origins = "https://illustrious-concha-a68f0b.netlify.app",
+exposedHeaders = {"Access-Control-Allow-Origin"
+		,"Access-Control-Allow-Credentials",
+		"Access-Control-Allow-Methods",
+		"Access-Control-Allow-Headers",		
+		},
 allowedHeaders = {"Authorization", "Origin"}, 
 maxAge = 3600)
 //@CrossOrigin(origins = "https://backend-dashboard.onrender.com/auth/authenticate", maxAge = 3600)

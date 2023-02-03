@@ -38,6 +38,7 @@ public class SecurityConfiguration {
 	@SuppressWarnings("unused")
 	private static final String[] AUTH_LIST = {
 			"/api/v1/auth/**",
+			"/auth/**",
             // -- Swagger UI v2
             "/v2/api-docs",
             "/swagger-resources",

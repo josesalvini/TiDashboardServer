@@ -35,8 +35,12 @@ import com.tipre.dashboard.service.UsersService;
 @RestController
 @RequestMapping("/api/v1/users")
 //@CrossOrigin(origins = "*", maxAge = 3600)
-@CrossOrigin(origins = "*",
-exposedHeaders = {"Access-Control-Allow-Origin","Access-Control-Allow-Credentials"},
+@CrossOrigin(origins = "https://illustrious-concha-a68f0b.netlify.app",
+exposedHeaders = {"Access-Control-Allow-Origin"
+		,"Access-Control-Allow-Credentials",
+		"Access-Control-Allow-Methods",
+		"Access-Control-Allow-Headers",		
+		},
 allowedHeaders = {"Authorization", "Origin"}, 
 maxAge = 3600)
 public class UsersController {
