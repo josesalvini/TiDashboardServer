@@ -15,6 +15,9 @@ spring:
     url: jdbc:postgresql://dpg-cfd67m1gp3jl4de2rev0-a.oregon-postgres.render.com:5432/db_tipreretail
     username: db_tipreretail_user
     password: AULwClCR4jwWag2u9RDaOrsC6eQpXvtN
+    autoCommit: false
+    hikari:
+      auto-commit: false
   jpa:
     generate-ddl: true
     open-in-view: false
@@ -35,7 +38,7 @@ spring:
       max-request-size: 500KB
 logging:
   level:
-    org.springframework.security: TRACE 
+    org.springframework.security: ERROR 
 management:
   security:
     enabled: false

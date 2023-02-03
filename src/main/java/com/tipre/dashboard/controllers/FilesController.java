@@ -1,11 +1,13 @@
 package com.tipre.dashboard.controllers;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,6 +22,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import com.tipre.dashboard.dto.ResponseFile;
 import com.tipre.dashboard.dto.ResponseMessage;
 import com.tipre.dashboard.model.fileinfo.FileDB;
+import com.tipre.dashboard.model.user.User;
 import com.tipre.dashboard.service.FilesStorageService;
 
 
@@ -31,21 +34,44 @@ public class FilesController {
 	  FilesStorageService storageService;
 
 	  @PostMapping("/{id}")
-	  public ResponseEntity<ResponseMessage> uploadFile(@RequestParam("file") MultipartFile file, @PathVariable Long id) {
+	  public ResponseEntity<?> uploadFile(@RequestParam("file") MultipartFile file, 
+			  @PathVariable Long id) {
 	    String message = "";
 	    try {
-	      storageService.store(file, id);
+	      User user = storageService.store(file, id);
 	      
-	      message = "Uploaded: Archivos subidos correctamente " + file.getOriginalFilename();
-	      return ResponseEntity
-	    		  .status(HttpStatus.OK)
-	    		  .body(ResponseMessage
-	    				  .builder()
-	    				  .statusCode(HttpStatus.OK.value())
-	    				  .message(message)
-	    				  .build());
-	    } catch (Exception e) {
-	      message = "Could not upload the file: " + file.getOriginalFilename() + ". Error: " + e.getMessage();
+	      if(user != null) {
+	    	  return new ResponseEntity<>(user, HttpStatus.OK); 
+	      }else {
+		      return ResponseEntity
+		    		  .status(HttpStatus.EXPECTATION_FAILED)
+		    		  .body(ResponseMessage
+							  .builder()
+							  .statusCode(HttpStatus.INTERNAL_SERVER_ERROR.value())
+							  .message("Error al subir imagen.")
+							  .build()); 
+	      }
+	      
+	      
+	      //message = "Archivo subido correctamente " + file.getOriginalFilename();
+	      //return ResponseEntity
+	    		 // .status(HttpStatus.OK)
+	    		  //.body(ResponseMessage
+	    				 // .builder()
+	    				  //.statusCode(HttpStatus.OK.value())
+	    				 // .message(message)
+	    				 // .build());
+	    } catch (IOException e) {
+		      message = "Error al grabar archivo: " + file.getOriginalFilename() + ". Error: " + e.getMessage();
+		      return ResponseEntity
+		    		  .status(HttpStatus.EXPECTATION_FAILED)
+		    		  .body(ResponseMessage
+							  .builder()
+							  .statusCode(HttpStatus.EXPECTATION_FAILED.value())
+							  .message(message)
+							  .build());
+		} catch (Exception e) {
+	      message = "No se pudo subir el archivo: " + file.getOriginalFilename() + ". Error: " + e.getMessage();
 	      return ResponseEntity
 	    		  .status(HttpStatus.EXPECTATION_FAILED)
 	    		  .body(ResponseMessage
@@ -54,6 +80,8 @@ public class FilesController {
 						  .message(message)
 						  .build());
 	    }
+	    
+	    
 	  }
 	  
 	  @GetMapping
@@ -75,7 +103,8 @@ public class FilesController {
 	    return ResponseEntity.status(HttpStatus.OK).body(files);
 	  }
 	  
-	  @GetMapping("/{id}")
+	  @GetMapping(value = "/{id}",
+			  produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
 	  public ResponseEntity<byte[]> getFile(@PathVariable Long id) {
 	    FileDB fileDB = storageService.getFile(id);
 

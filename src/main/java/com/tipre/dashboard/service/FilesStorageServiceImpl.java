@@ -6,7 +6,10 @@ import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Optional;
 import java.util.stream.Stream;
+
+import javax.transaction.Transactional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
@@ -17,30 +20,58 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.tipre.dashboard.model.fileinfo.FileDB;
+import com.tipre.dashboard.model.user.User;
 import com.tipre.dashboard.repository.FileRepository;
 
 @Service
 public class FilesStorageServiceImpl implements FilesStorageService {
 
+  //private static final Logger LOGGER = LoggerFactory.getLogger(FilesStorageServiceImpl.class);	
+	
   private final Path root = Paths.get("uploads");
 
   @Autowired
   private FileRepository fileRepository;
+  
+  @Autowired
+  private UsersService usersService;
 
   @Override
-  public FileDB store(MultipartFile file, Long id) throws IOException {
+  @Transactional
+  public User store(MultipartFile file, Long id) throws IOException {
+	
     String fileName = StringUtils.cleanPath(file.getOriginalFilename());
-    FileDB FileDB = new FileDB(fileName, file.getContentType(), file.getBytes(), id);
-
-    return fileRepository.save(FileDB);
+    FileDB fileDB = FileDB
+		    		.builder()
+		    		.name(fileName)
+		    		.type(file.getContentType())
+		    		.data(file.getBytes())
+		    		.build();
+        
+    Optional<User> user = usersService.findById(id);
+    User updatedUser = null;
+    
+    if (user.isPresent()) {  	
+    	updatedUser = user.get();
+    	
+    	//LOGGER.info("Usuario encontrado {}", updatedUser.getUsername()); 
+    	    	
+    	updatedUser.setAvatar(fileDB);    	
+    	usersService.save(updatedUser); 	    	
+    	 	   	
+    }
+    
+    return updatedUser != null ? updatedUser : null;
   }
 
   @Override
+  @Transactional
   public FileDB getFile(Long id) {
     return fileRepository.findById(id).get();
   }
   
   @Override
+  @Transactional
   public Stream<FileDB> getAllFiles() {
     return fileRepository.findAll().stream();
   }

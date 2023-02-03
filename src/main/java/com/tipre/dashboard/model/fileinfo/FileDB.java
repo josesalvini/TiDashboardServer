@@ -4,7 +4,6 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.Lob;
 import javax.persistence.Table;
 
 import lombok.AllArgsConstructor;
@@ -32,15 +31,16 @@ public class FileDB {
 
 	private String type;
 
-	@Lob
+	//@Lob
 	private byte[] data;
 	
-	private long user;
+	//@OneToOne(fetch = FetchType.LAZY)	  
+	//@JoinColumn(name = "tutorial_id")
+	//private Tutorial tutorial;
 
-	public FileDB(String name, String type, byte[] data, long user) {
+	public FileDB(String name, String type, byte[] data) {
 		this.name = name;
 		this.type = type;
 		this.data = data;
-		this.user = user;
 	}
 }

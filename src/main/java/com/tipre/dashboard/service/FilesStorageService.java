@@ -8,6 +8,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.tipre.dashboard.model.fileinfo.FileDB;
+import com.tipre.dashboard.model.user.User;
 
 public interface FilesStorageService {
   public void init();
@@ -20,7 +21,7 @@ public interface FilesStorageService {
 
   public Stream<Path> loadAll();
   
-  public FileDB store(MultipartFile file, Long id) throws IOException;
+  public User store(MultipartFile file, Long id) throws IOException;
   public FileDB getFile(Long id);
   public Stream<FileDB> getAllFiles();
 }

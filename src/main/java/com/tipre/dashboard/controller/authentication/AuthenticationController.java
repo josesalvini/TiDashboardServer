@@ -4,6 +4,9 @@ import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,10 +34,7 @@ import com.tipre.dashboard.model.user.ERole;
 import com.tipre.dashboard.model.user.Role;
 import com.tipre.dashboard.model.user.User;
 import com.tipre.dashboard.repository.RoleRepository;
-import com.tipre.dashboard.repository.UserRepository;
-
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
+import com.tipre.dashboard.service.UsersService;
 
 @RestController
 @RequestMapping("/api/v1/auth")
@@ -47,7 +47,7 @@ public class AuthenticationController {
 	@Autowired
 	AuthenticationManager authenticationManager;
 	@Autowired
-	UserRepository userRepository;
+	private UsersService usersService;
 	@Autowired
 	RoleRepository roleRepository;
 	@Autowired
@@ -59,9 +59,9 @@ public class AuthenticationController {
 	public ResponseEntity<?> register(@Validated @RequestBody User request) {
 
 		try {
-			if (userRepository.existsByUsername(request.getUsername())) {
+			if (usersService.existsByUsername(request.getUsername())) {
 				return ResponseEntity.badRequest().body(AuthenticationError.builder()
-						.statusCode(HttpStatus.BAD_REQUEST.value()).message("El nombre de usuario ya existe!").build());
+						.code(HttpStatus.BAD_REQUEST.value()).message("El nombre de usuario ya existe!").build());
 			}
 
 			User user = User
@@ -108,24 +108,24 @@ public class AuthenticationController {
 			}*/
 
 			user.setRoles(roles);
-			userRepository.save(user);
+			usersService.save(user);
 
 			return ResponseEntity.ok().body(RegisterResponse.builder().user(user).build());
 		} catch (RuntimeException e) {
 			LOGGER.error(e.getMessage());
 			return ResponseEntity.internalServerError().body(AuthenticationError.builder()
-					.statusCode(HttpStatus.INTERNAL_SERVER_ERROR.value()).message(e.getMessage()).build());
+					.code(HttpStatus.INTERNAL_SERVER_ERROR.value()).message(e.getMessage()).build());
 		} catch (Exception e) {
 			LOGGER.error(e.getMessage());
 			return ResponseEntity.internalServerError().body(AuthenticationError.builder()
-					.statusCode(HttpStatus.INTERNAL_SERVER_ERROR.value()).message(e.getMessage()).build());
+					.code(HttpStatus.INTERNAL_SERVER_ERROR.value()).message(e.getMessage()).build());
 		}
 
 	}
 
 	@PostMapping("/authenticate")
 	public ResponseEntity<?> authenticate(@Validated @RequestBody AuthenticationRequest request) {
-		Optional<User> user = userRepository.findByUsername(request.getUsername());
+		Optional<User> user = usersService.findByUsername(request.getUsername());
 
 		if (user.isPresent()) {
 			Authentication authentication = authenticationManager.authenticate(
@@ -146,8 +146,12 @@ public class AuthenticationController {
 					// .header(HttpHeaders.SET_COOKIE, jwtCookie.toString())
 					.body(AuthenticationResponse.builder().user(user.get()).token(token).build());
 		} else {
-			return ResponseEntity.ok().body(AuthenticationError.builder().statusCode(HttpStatus.NOT_FOUND.value())
-					.message("El usuario ".concat(request.getUsername()).concat(" no existe")).build());
+			return ResponseEntity.badRequest()
+					.body(AuthenticationError
+							.builder()
+							.code(HttpStatus.BAD_REQUEST.value())
+							.message("El usuario ".concat(request.getUsername()).concat(" no existe"))
+							.build());
 		}
 	}
 

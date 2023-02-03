@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -13,10 +14,13 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+
+import com.tipre.dashboard.model.fileinfo.FileDB;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -59,7 +63,16 @@ public class User implements Serializable {
 	@JoinTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))
 	@Builder.Default
 	private Set<Role> roles = new HashSet<>();
-
+	
+    //@OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
+    //@PrimaryKeyJoinColumn
+    //@JsonIgnore
+    //private FileDB fileDB;
+    
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "file_id", referencedColumnName = "id")
+    private FileDB avatar;
+	
 	private static final long serialVersionUID = -2582227264917020424L;
 
 }

@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import javax.validation.Valid;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -27,9 +29,7 @@ import com.tipre.dashboard.model.user.ERole;
 import com.tipre.dashboard.model.user.Role;
 import com.tipre.dashboard.model.user.User;
 import com.tipre.dashboard.repository.RoleRepository;
-import com.tipre.dashboard.repository.UserRepository;
-
-import javax.validation.Valid;
+import com.tipre.dashboard.service.UsersService;
 
 
 @RestController
@@ -37,16 +37,19 @@ import javax.validation.Valid;
 @CrossOrigin(origins = "*", maxAge = 3600)
 public class UsersController {
 
+	//private static final Logger LOGGER = LoggerFactory.getLogger(UsersController.class);
+	
 	@Autowired
-	UserRepository userRepository;
+	private UsersService usersService;
 	@Autowired
 	RoleRepository roleRepository;
 	@Autowired
 	PasswordEncoder encoder;
+	
 	@GetMapping
 	public ResponseEntity<?> getUsers() {
 		try {
-			List<User> users = userRepository.findAll();
+			List<User> users = usersService.findAll();
 
 			if (users.isEmpty()) {
 				users = new ArrayList<>(0);
@@ -58,7 +61,7 @@ public class UsersController {
 						.build(), 
 						HttpStatus.NO_CONTENT);
 			}
-
+			
 			return new ResponseEntity<>(  
 					UsersResponse
 					.builder()
@@ -79,7 +82,7 @@ public class UsersController {
 
 	@GetMapping(path = "{id}")
 	public ResponseEntity<?> getUser(@Valid @PathVariable("id") Long id) {
-		Optional<User> user = userRepository.findById(id);
+		Optional<User> user = usersService.findById(id);
 
 		if (user.isPresent()) {
 			return new ResponseEntity<>(user.get(), HttpStatus.OK);
@@ -117,7 +120,7 @@ public class UsersController {
 
 			user.setRoles(roles);
 
-			userRepository.save(_user);
+			usersService.save(_user);
 
 			return new ResponseEntity<>(_user, HttpStatus.CREATED);
 		} catch (Exception e) {
@@ -134,7 +137,7 @@ public class UsersController {
 	@DeleteMapping(path = "{id}")
 	public ResponseEntity<?> deleteUser(@Valid @PathVariable("id") Long id) {
 		try {
-			userRepository.deleteById(id);
+			usersService.deleteById(id);
 			return new ResponseEntity<>(
 					ResponseMessage
 					.builder()
@@ -155,7 +158,7 @@ public class UsersController {
 
 	@PutMapping(path = "{id}")
 	public ResponseEntity<?> updateUser(@Valid @PathVariable("id") Long id, @Valid @RequestBody UserUpdate user) {
-		Optional<User> userData = userRepository.findById(id);
+		Optional<User> userData = usersService.findById(id);
 
 		if (userData.isPresent()) {
 			User _user = userData.get();
@@ -164,7 +167,7 @@ public class UsersController {
 			_user.setLastname(user.getLastname());
 			_user.setUsername(user.getUsername());
 			
-			return new ResponseEntity<>(userRepository.save(_user), 
+			return new ResponseEntity<>(usersService.save(_user), 
 					HttpStatus.OK);
 		} else {
 			return new ResponseEntity<>(

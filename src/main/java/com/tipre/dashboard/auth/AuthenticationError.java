@@ -11,6 +11,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class AuthenticationError {
 
-	private int statusCode;
+	private int code;
 	private String message;
 }

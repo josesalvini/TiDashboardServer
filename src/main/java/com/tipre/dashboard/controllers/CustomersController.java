@@ -1,5 +1,6 @@
 package com.tipre.dashboard.controllers;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -34,9 +35,16 @@ public class CustomersController {
 	public ResponseEntity<CustomersResponse> getCustomers() {
 		try {
 			List<Customer> customers = customerRepository.findAll();
-
+			
 			if (customers.isEmpty()) {
-				return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+				customers = new ArrayList<>(0);
+				return new ResponseEntity<>(
+						CustomersResponse
+						.builder()
+						.count(customers.size())
+						.customers(customers)
+						.build(), 
+						HttpStatus.OK);
 			}
 
 			return new ResponseEntity<>(  
@@ -44,7 +52,8 @@ public class CustomersController {
 					.builder()
 					.count(customers.size())
 					.customers(customers)
-					.build() , HttpStatus.OK);
+					.build(), 
+					HttpStatus.OK);
 		} catch (Exception e) {
 			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
