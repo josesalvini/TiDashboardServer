@@ -39,7 +39,8 @@ import com.tipre.dashboard.service.UsersService;
 @RestController
 @RequestMapping("/api/v1/auth")
 //@CrossOrigin(origins = "http://localhost:59968, http://localhost:8080")
-@CrossOrigin(origins = "*", maxAge = 3600)
+//@CrossOrigin(origins = "*", maxAge = 3600)
+@CrossOrigin(origins = "https://illustrious-concha-a68f0b.netlify.app", maxAge = 3600)
 public class AuthenticationController {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(AuthenticationController.class);

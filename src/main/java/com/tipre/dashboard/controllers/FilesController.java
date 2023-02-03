@@ -28,7 +28,8 @@ import com.tipre.dashboard.service.FilesStorageService;
 
 @RestController
 @RequestMapping("/api/v1/files")
-@CrossOrigin(origins = "*", maxAge = 3600)
+//@CrossOrigin(origins = "*", maxAge = 3600)
+@CrossOrigin(origins = "https://illustrious-concha-a68f0b.netlify.app", maxAge = 3600)
 public class FilesController {
 	  @Autowired
 	  FilesStorageService storageService;
